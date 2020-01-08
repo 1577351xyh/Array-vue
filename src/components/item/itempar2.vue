@@ -122,7 +122,7 @@
             },
             forin(arr) {
                 if (arr.length === 0) {
-                    //没选中的状态,不准下注
+                    return;
                 } else {
                     for (let j = 0; j < arr.length; j++) {
                         if (j + 1 === arr.length) {
