@@ -12,7 +12,9 @@ const store = new Vuex.Store({
         play: '',
         room_id:9,
         odd:19.1,
-        buyObj:{}
+        buyObj:{},
+        //期号
+        issue:'',
     },
     mutations: {
         addItem(state, obj) {
@@ -30,6 +32,9 @@ const store = new Vuex.Store({
         setbuyObj(state,obj){
             this.buyObj = obj
         },
+        setissue(state,sue){
+          this.issue = sue
+        }
     }
     ,
     actions: {

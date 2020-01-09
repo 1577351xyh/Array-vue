@@ -100,7 +100,9 @@
                     multiple:this.num,
                     num:this.nums,
                     content:this.str,
+                    //描述
                     play_desc:'',
+                    //赔率
                     odds_id:'',
                     money:2
                 };
