@@ -1,7 +1,8 @@
 <template>
     <div class="itemp">
+        <div v-if="item">{{item.content}}{{item.desc}}</div>
         <div v-for="item in arr">
-            <item :choice="true"></item>
+            <item :choice="true" :item="item" :chooseType="chooseArray.length"></item>
         </div>
 
         <div class="inputNumber flex">
@@ -23,19 +24,18 @@
 
         </div>
         <div class="buttom">
-            <el-button type="success" @click="submit">确定选号</el-button>
-            <el-button type="success" @click="buy">确定下注</el-button>
+            <el-button type="primary" @click="submit" v-if="chooseArray.length==0">确定选号</el-button>
+            <el-button type="success" @click="buy" v-else>确定下注</el-button>
         </div>
 
         <div>
             <ul class="ul-box">
                 <li v-for="(item,index) in chooseArray">
                     <p>{{item.str}}</p>
-                    <!--                    <p>详细</p>-->
                     <p>{{item.nums}}注</p>
                     <p>{{item.num}}倍</p>
                     <p>{{item.price}}元</p>
-                    <p>可中金额?</p>
+                    <p>可中金额{{item.price * 1.91}}</p>
                     <p @click="ItemDelete(index)" class="delete">删除</p>
                 </li>
             </ul>
@@ -45,26 +45,43 @@
 </template>
 
 <script>
-    import item from './item'
+    import item from '../item/item'
 
     export default {
         name: '',
         props: {
-          arr:{
-            type:Array
-          }
+            item: {
+                type: Object
+            }
+        },
+        created(){
+          console.log(this.item)
         },
         data() {
             return {
                 //注数
+                arr: [],
                 nums: 0,
                 //倍数
                 num: 1,
                 str: '',
                 childerArr: [],
-                BetArr: [],
                 price: undefined,
                 chooseArray: []
+            }
+        },
+        created(){
+            // 生成数组arr
+            for (let i = 0; i < 10; i++) {
+                this.arr.push([]);
+                for (let j = 0; j < 10; j++) {
+                    if(j==9){
+                        this.arr[i].push({name:parseInt(1+j),active:0,id:Math.floor(Math.random()*1000000000+1)})
+                    }else {
+                        let s = '0'+(j+1);
+                        this.arr[i].push({name:s,active:0,id:Math.floor(Math.random()*10000000000+1)})
+                    }
+                }
             }
         },
         components: {
@@ -79,21 +96,36 @@
         },
         methods: {
             buy() {
-
+                let obj = {
+                    multiple:this.num,
+                    num:this.nums,
+                    content:this.str,
+                    play_desc:'',
+                    odds_id:'',
+                    money:2
+                };
+                console.log(obj)
+                this.chooseArray =[];
+                this.str =''
             },
             handleChange(value) {
                 console.log(value)
             },
             submit() {
                 //先提交数据
+                if(this.str=='-,-,-,-,-,-,-,-,-,-'){
+                     this.$notify.info({
+                        title: '消息',
+                        message: '当前注为0,请投注'
+                    });
+                     return
+                }
                 this.chooseArray.push({
                     str: this.str,
                     price: this.price,
                     nums: this.nums,
                     num: this.num
                 });
-                this.str = '';
-                this.BetArr = [];
                 this.num = 0;
                 this.childerArr = this.$children.filter(
                     vm => vm.$options.name === 'items'
@@ -101,23 +133,28 @@
                 //清空
                 this.delete(this.childerArr)
             },
-            onChange() {
-                this.BetArr = [];
+            onChange(item) {
                 this.str = '';
 
                 this.childerArr = this.$children.filter(
                     vm => vm.$options.name === 'items'
                 );
+                let s ='';
                 for (let i = 0; i < this.childerArr.length; i++) {
                     let vm = this.$children[i]
-                    this.forin(vm.activeItem, i)
+                    this.forin(vm.activeItem, i);
+                    vm.item.forEach(vm=>{
+                        if(vm.active==1){
+                            s++
+                        }
+                    });
                 }
+                this.nums=s;
                 this.str = this.str.substr(0, this.str.length - 1)
                 //当前注数
                 let strs = this.str;
-                this.nums = this.BetArr.length;
-                console.log(`当前注${this.nums}`);
-                console.log(`当前选中:${this.str}`)
+                // console.log(`当前注${this.nums}`);
+                // console.log(`当前选中:${this.str}`)
 
             },
             forin(arr) {
@@ -126,7 +163,6 @@
                 } else {
                     for (let j = 0; j < arr.length; j++) {
                         this.str += arr[j] + ','
-                        this.BetArr.push(arr[j])
                     }
                 }
             },
@@ -135,10 +171,11 @@
                 for (let i = 0; i < arr.length; i++) {
                     let vm = arr[i]
                     vm.activeItem = []
-                    vm.indexs = undefined;
+                    vm.item.forEach(vms=>{
+                        vms.active = 0
+                    });
                 }
-                this.BetArr = []
-                this.str = ''
+                this.nums = 0;
             },
             ItemDelete(index) {
                 this.chooseArray.splice(index, 1)

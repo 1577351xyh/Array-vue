@@ -1,7 +1,8 @@
 <template>
     <div class="itemp">
+        <div v-if="item">{{item.content}}{{item.desc}}</div>
         <div v-for="item in arr">
-            <item :choice="false"></item>
+            <item :choice="false" :item ="item" :chooseType="chooseArray.length"></item>
         </div>
 
         <div class="inputNumber flex">
@@ -22,8 +23,8 @@
             </div>
         </div>
         <div class="buttom">
-            <el-button type="success" @click="onSbmit">确定选号</el-button>
-            <el-button type="success" @click="buy">确定下注</el-button>
+            <el-button type="primary" @click="onSbmit" v-if="chooseArray.length==0">确定选号</el-button>
+            <el-button type="success" @click="buy" v-else>确定下注</el-button>
         </div>
 
         <div>
@@ -33,7 +34,7 @@
                     <p>{{item.nums}}注</p>
                     <p>{{item.num}}倍</p>
                     <p>{{item.price}}元</p>
-                    <p>可中金额?</p>
+                    <p>可中金额{{oddNum*item.num}}</p>
                     <p @click="ItemDelete(index)" class="delete">删除</p>
                 </li>
             </ul>
@@ -42,12 +43,14 @@
 </template>
 
 <script>
-    import item from './item'
+    import item from '../item/item'
 
     export default {
         name: '',
         props: {
-            arr: {type: Array}
+            item: {
+                type: Object
+            }
         },
         data() {
             return {
@@ -58,7 +61,8 @@
                 childerArr: [],
                 BetNub: '',
                 newArray: [],
-                chooseArray: []
+                chooseArray: [],
+                arr:[]
             }
         },
         components: {
@@ -71,6 +75,20 @@
                 return this.num * 2 * this.nums;
             }
         },
+         created(){
+            // 生成数组arr
+            for (let i = 0; i < 1; i++) {
+                this.arr.push([]);
+                for (let j = 0; j < 10; j++) {
+                    if(j==9){
+                        this.arr[i].push({name:parseInt(1+j),active:0,id:Math.floor(Math.random()*1000000000+1)})
+                    }else {
+                        let s = '0'+(j+1);
+                        this.arr[i].push({name:s,active:0,id:Math.floor(Math.random()*10000000000+1)})
+                    }
+                }
+            }
+        },
         methods: {
             buy() {
 
@@ -79,8 +97,7 @@
                 console.log(value)
             },
             onSbmit() {
-                //数据---vuex
-                //先提交数据
+                //提交数据
                 if (this.price !== 0) {
                     this.chooseArray.push({
                         str: this.str,
@@ -99,11 +116,10 @@
                 );
                 this.delete(this.childerArr)
             },
-            submit() {
+            onChange() {
                 //每次计算前,先清空数据
                 this.newArray = [];
                 this.str = '';
-
                 this.childerArr = this.$children.filter(
                     vm => vm.$options.name === 'items'
                 );
@@ -135,34 +151,24 @@
             },
             Bet() {
                 let arrangementArray = this.newArray;
-                // console.log('计算的数组')
-                // console.log(this.newArray);
                 let arrangement = this.getArrayByArrays(arrangementArray)
-                // console.log(arrangement)
                 //拆解数组
                 let oneArray = this.Dismantling(arrangement);
                 this.nums = oneArray.length;
-                // console.log(`${this.num}注`)
             },
             Dismantling(arr) {
-                // console.log(`传进来的数组`)
-                // console.log(arr)
                 let DismantlingArrs = [];
                 var strArr = new Array();
                 arr.forEach(vm => {
-                    // console.log(vm[0]);
                     //定义一数组
                     strArr = vm[0].split(',') //字符分割
                     // console.log(`去重前的结果所有排列组合`)
-                    // console.log(strArr)
                     let strArrs = this.unique(strArr)
                     // console.log(`去重后的结果${strArrs}`)
                     if (strArrs.length === strArr.length) {
                         DismantlingArrs.push(strArrs)
                     }
                 });
-                // console.log('返回的数组')
-                // console.log(DismantlingArrs);
                 return DismantlingArrs
             },
             unique(arr) {
@@ -174,12 +180,14 @@
                 for (let i = 0; i < arr.length; i++) {
                     let vm = arr[i];
                     vm.activeItem = []
+                    vm.item.forEach(vms=>{
+                        vms.active = 0
+                    });
                 }
                 this.str = '';
                 this.newArray = [];
                 this.nums = 0;
                 this.num = 1;
-                // console.log('删除')
             },
             //二维数组排列组合
             getArrayByArrays(arrays) {

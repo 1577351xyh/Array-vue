@@ -1,7 +1,8 @@
 <template>
   <div class="itemp">
+<!--    <div v-if="item">{{item.content}}{{item.desc}}</div>-->
     <div v-for="(item, index) in ObjArr">
-      <item2 :choice="true" :item="item" :Pindex="index"></item2>
+      <item2 :choice="true" :item="item" :chooseType="chooseArray.length"></item2>
     </div>
     <div class="buttom">
       <el-button type="success">确定下注</el-button>
@@ -16,12 +17,11 @@
             每注<el-input
               size="small"
               v-model="input"
-              placeholder="请输入内容"
             ></el-input
             >元
           </p>
           <p>可中金额?</p>
-          <p @click="ItemDelete(index, '')" class="delete">删除</p>
+          <p @click="ItemDelete(item,index,'')" class="delete">删除</p>
         </li>
       </ul>
     </div>
@@ -29,7 +29,8 @@
 </template>
 
 <script>
-import item2 from './item2'
+import item2 from '../item/item2'
+
 
 export default {
   name: '',
@@ -87,6 +88,9 @@ export default {
     },
     //当前选中的值,当前选中的行
     onChange(item) {
+      if(this.chooseArray.length>0){
+        return;
+      }
       this.str = ''
       this.childerArr = this.$children.filter(
         vm => vm.$options.name === 'items'
@@ -103,8 +107,8 @@ export default {
           str: this.str,
           nums: this.nums
         })
-        this.str = ''
-        this.nums = 0
+        this.str = '';
+        this.nums = 0;
         this.childerArr = this.$children.filter(
           vm => vm.$options.name === 'items'
         )
@@ -117,8 +121,7 @@ export default {
         this.str = '-,' + item.name
       }
     },
-    ItemDelete(index, item) {
-      console.log(item)
+    ItemDelete(items,index, item) {
       if (item) {
         for (let i = 0; i < this.chooseArray.length; i++) {
           if (this.chooseArray[i].id === item.id) {
@@ -127,7 +130,14 @@ export default {
         }
         return
       }
-      this.chooseArray.splice(index, 1)
+      this.chooseArray.splice(index, 1);
+      this.childerArr.forEach(vm=>{
+        vm.item.forEach(vms=>{
+          if(vms.id === items.id){
+            vms.active =0;
+          }
+        })
+      })
     }
   }
 }

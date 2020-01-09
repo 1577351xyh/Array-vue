@@ -23,6 +23,9 @@ export default {
     item: {
       type: Array
     },
+    chooseType:{
+      type:Number
+    }
   },
   data() {
     return {
@@ -34,13 +37,13 @@ export default {
   },
   methods: {
     onClick(item) {
-      if (item.active == 0) {
+      if (item.active == 0 && this.chooseType !=1) {
         item.active = 1
         this.activeItem.push(item.name)
         this.$parent.onChange(item)
       } else {
         item.active = 0
-        this.$parent.ItemDelete('',item)
+        this.$parent.ItemDelete('','',item)
       }
     },
   }
@@ -49,8 +52,7 @@ export default {
 
 <style type="text/scss" lang="scss" scoped>
 .item {
-  /*display: flex;*/
-  width: 600px;
+  width: 100%;
   margin: 10px 0;
   margin-bottom: 35px;
   display: flex;
