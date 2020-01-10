@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-
+import http from "../hppt/api";
 Vue.use(Vuex)
 
 const store = new Vuex.Store({
@@ -30,15 +30,24 @@ const store = new Vuex.Store({
             state.room_id = id;
         },
         setbuyObj(state,obj){
-            this.buyObj = obj
+            state.buyObj = obj
         },
         setissue(state,sue){
-          this.issue = sue
-        }
+            state.issue = sue
+        },
     }
     ,
     actions: {
-
+        buy(context,args){
+            let obj = {
+                room_id:this.state.room_id,
+                //当前期拿
+                issue:this.state.issue,
+            }
+            console.log(args)
+            console.log(obj)
+            return http.betting(obj,args)
+        }
     },
     modules: {}
 })

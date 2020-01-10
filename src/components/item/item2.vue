@@ -8,8 +8,8 @@
       @click.stop="onClick(childer, index)"
       ref="content"
     >
-      <p class="childer-text">{{ childer.name }}</p>
-      <div class="item-childer-2">赔率{{ childer.odds_id }}</div>
+      <p class="childer-text">{{ childer.play_name }}</p>
+      <div class="item-childer-2">赔率{{ childer.odds }}</div>
     </div>
   </div>
 </template>
@@ -39,9 +39,11 @@ export default {
     onClick(item) {
       if (item.active == 0 && this.chooseType !=1) {
         item.active = 1
-        this.activeItem.push(item.name)
+        this.activeItem.push(item.play_name)
         this.$parent.onChange(item)
       } else {
+        let index = this.activeItem.indexOf(item.name);
+        this.activeItem.splice(index, 1)
         item.active = 0
         this.$parent.ItemDelete('','',item)
       }

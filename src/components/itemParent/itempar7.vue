@@ -1,11 +1,11 @@
 <template>
   <div class="itemp">
-<!--    <div v-if="item">{{item.content}}{{item.desc}}</div>-->
-    <div v-for="(item, index) in ObjArr">
-      <item2 :choice="true" :item="item" :chooseType="chooseArray.length"></item2>
+    <div v-if="item" class="itemp-tips">{{item.content}}{{item.desc}}</div>
+    <div v-if="ObjArr1">
+      <item3 :choice="true" :item1="ObjArr1" :item2="ObjArr2" :chooseType="chooseArray.length"></item3>
     </div>
     <div class="buttom">
-      <el-button type="success">确定下注</el-button>
+      <el-button type="success" @click="buy">确定下注</el-button>
     </div>
 
     <div>
@@ -14,13 +14,10 @@
           <p>{{ item.str }}</p>
           <p>1注</p>
           <p class="flex">
-            每注<el-input
-              size="small"
-              v-model="input"
-            ></el-input
-            >元
+            每注
+            <el-input size="small" v-model="input"></el-input>元
           </p>
-          <p>可中金额?</p>
+          <p>可中金额{{price}}</p>
           <p @click="ItemDelete(item,index,'')" class="delete">删除</p>
         </li>
       </ul>
@@ -29,118 +26,158 @@
 </template>
 
 <script>
-import item2 from '../item/item2'
-
+import item3 from "../item/item3";
 
 export default {
-  name: '',
+  props: {
+    item: {
+      type: Object
+    }
+  },
+  name: "",
   data() {
     return {
       //注数
-      input: '',
+      input: 1,
       nums: 1,
-      ObjArr: [
-        [
-          { name: '和大', odds_id: '1.910', active: 0, id: 1, type: '1' },
-          { name: '和小', odds_id: '1.910', active: 0, id: 2, type: '1' },
-          { name: '和单', odds_id: '1.910', active: 0, id: 3, type: '1' },
-          { name: '和双', odds_id: '1.910', active: 0, id: 4, type: '1' }
-        ],
-        [
-          { name: '大', odds_id: '1.910', active: 0, id: 5, type: '2' },
-          { name: '小', odds_id: '1.910', active: 0, id: 6, type: '2' },
-          { name: '单', odds_id: '1.910', active: 0, id: 7, type: '2' },
-          { name: '双', odds_id: '1.910', active: 0, id: 8, type: '2' },
-          { name: '龙', odds_id: '1.910', active: 0, id: 9, type: '2' },
-          { name: '虎', odds_id: '1.910', active: 0, id: 10, type: '2' }
-        ],
-        [
-          { name: '大', odds_id: '1.910', active: 0, id: 11, type: '2' },
-          { name: '小', odds_id: '1.910', active: 0, id: 12, type: '2' },
-          { name: '单', odds_id: '1.910', active: 0, id: 13, type: '2' },
-          { name: '双', odds_id: '1.910', active: 0, id: 14, type: '2' },
-          { name: '龙', odds_id: '1.910', active: 0, id: 15, type: '2' },
-          { name: '虎', odds_id: '1.910', active: 0, id: 16, type: '2' }
-        ],
-        [
-          { name: '大', odds_id: '1.910', active: 0, id: 17, type: '2' },
-          { name: '小', odds_id: '1.910', active: 0, id: 18, type: '2' },
-          { name: '单', odds_id: '1.910', active: 0, id: 19, type: '2' },
-          { name: '双', odds_id: '1.910', active: 0, id: 20, type: '2' },
-          { name: '龙', odds_id: '1.910', active: 0, id: 21, type: '2' },
-          { name: '虎', odds_id: '1.910', active: 0, id: 22, type: '2' }
-        ]
-      ],
-      str: '',
+      ObjArr1: [],
+      ObjArr2: [],
+      str: "",
+      odds: 0,
       childerArr: [],
-      // BetArr: [],
-      // price: undefined,
       chooseArray: []
-    }
+    };
   },
   components: {
-    item2
+    item3
+  },
+  computed: {
+    price() {
+      return this.input * this.odds;
+    }
   },
   methods: {
-    buy() {},
-    handleChange(value) {
-      console.log(value)
+    getArr(arr) {
+      //处理数组
+      if (this.ObjArr1.length < 1) {
+        arr.forEach(vm => {
+          if (vm.desc == "冠亚和") {
+            vm.active = 0;
+            this.ObjArr1.push(vm);
+          } else {
+            vm.active = 0;
+            this.ObjArr2.push(vm);
+          }
+        });
+      }
+    },
+
+    buy() {
+      // 计算赔率
+      let obj = {
+        multiple: 1,
+        num: 1,
+        content: this.str,
+        //描述
+        play_desc: this.item.name,
+        //赔率
+        odds_id: this.odds,
+        money: this.input
+      };
+      this.$store.dispatch("buy", obj).then(res => {
+        if (res.data.code === 200) {
+          this.$message({
+            type: "success",
+            message: res.data.message
+          });
+        } else {
+          this.$message({
+            type: "info",
+            message: res.data.message
+          });
+        }
+      });
+      this.chooseArray = [];
+      this.str = "";
+      this.nums = 0;
+      this.odds = 0;
+      this.input = 0;
+      this.delete();
+    },
+    oddsfn(item) {
+      this.odds = item.id;
+      // let id = item.id;
+      // this.ObjArr1.forEach(vm => {
+      //   if (vm.id == id) {
+      //     this.odds = vm.id;
+      //   }
+      // });
+      // this.ObjArr2.forEach(vm => {
+      //   if (vm.id == id) {
+      //     this.odds = vm.id;
+      //   }
+      // });
     },
     //当前选中的值,当前选中的行
     onChange(item) {
-      if(this.chooseArray.length>0){
-        return;
-      }
-      this.str = ''
+      this.oddsfn(item);
+      this.str = "";
       this.childerArr = this.$children.filter(
-        vm => vm.$options.name === 'items'
-      )
-      this.forin(item)
-      let strs = this.str
-      console.log(`当前选中:${strs}`)
-      this.submit(item)
+        vm => vm.$options.name === "items"
+      );
+      this.forin(item);
+      let strs = this.str;
+      console.log(`当前选中:${strs}`);
+      this.submit(item);
     },
     submit(item) {
       //先提交数据
-        this.chooseArray.push({
-          id: item.id,
-          str: this.str,
-          nums: this.nums
-        })
-        this.str = '';
-        this.nums = 0;
-        this.childerArr = this.$children.filter(
-          vm => vm.$options.name === 'items'
-        )
+      this.chooseArray.push({
+        id: item.id,
+        str: this.str,
+        nums: this.nums
+      });
+    },
+    //清空
+    delete() {
+      this.childerArr = this.$children.filter(
+        vm => vm.$options.name === "items"
+      );
+      this.childerArr[0].item1.forEach(vm => {
+        vm.active = 0;
+      });
+      this.childerArr[0].item2.forEach(vm => {
+        vm.active = 0;
+      });
     },
     forin(item) {
-      console.log(item)
-      if (item.type == 1) {
-        this.str = item.name + ',-'
+      console.log(item);
+      if (item.desc == "冠亚和") {
+        this.str = item.play_name + ",-";
       } else {
-        this.str = '-,' + item.name
+        this.str = "-," + item.play_name;
       }
     },
-    ItemDelete(items,index, item) {
+    ItemDelete(items, index, item) {
       if (item) {
         for (let i = 0; i < this.chooseArray.length; i++) {
           if (this.chooseArray[i].id === item.id) {
-            this.chooseArray.splice(i, 1)
+            this.chooseArray.splice(i, 1);
           }
         }
-        return
+        return;
       }
       this.chooseArray.splice(index, 1);
-      this.childerArr.forEach(vm=>{
-        vm.item.forEach(vms=>{
-          if(vms.id === items.id){
-            vms.active =0;
+      this.childerArr.forEach(vm => {
+        vm.item.forEach(vms => {
+          if (vms.id === items.id) {
+            vms.active = 0;
           }
-        })
-      })
+        });
+      });
     }
   }
-}
+};
 </script>
 
 <style scoped>

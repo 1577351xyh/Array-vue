@@ -7,8 +7,10 @@
         <div class="time">{{ time }}</div>
       </div>
       <div class="flex-2">
-        <div class="flex">第{{ nowlssue.issue - 1 }}期开奖号码</div>
-        <div></div>
+        <div class="flex">第{{ prevSue.issue }}期开奖号码</div>
+        <div class="roundNo">
+          <div v-for="o in prevSue.content">{{o}}</div>
+        </div>
       </div>
     </div>
     <div class="container-bottom">
@@ -22,67 +24,67 @@
           </el-tab-pane>
         </el-tabs>
       </div>
+
       <div class="row-right">
-        <div>
-          <p>最近十期开奖号码</p>
-          <ul class="flex-ul">
-            <li class="flex-li">
-              <p>期号</p>
-              <p>开奖号</p>
-              <p>开奖时间</p>
-            </li>
-            <li v-for="(item, index) in resulu" class="flex-li">
-              <p>{{ item.issue }}</p>
-              <p class="issueContent">{{ item.content }}</p>
-              <p>{{ item.updated_at }}</p>
-            </li>
-          </ul>
-        </div>
-        <div>
-          <p>投注记录</p>
-          <ul class="flex-ul">
-            <li class="flex-li">
-              <p>期号</p>
-              <p>金额</p>
-              <p>投注内容</p>
-              <p>奖金</p>
-            </li>
-            <li v-for="(item, index) in betLogArr" class="flex-li">
-              <p>{{ item.issue }}</p>
-              <p>{{ item.play_score }}</p>
-              <p>{{ item.content }}</p>
-              <p v-if="item.status == 1">{{ item.win_score }}</p>
-              <p v-else-if="item.status == 2">进行中</p>
-              <p v-else-if="item.status == 3">未中奖</p>
-            </li>
-          </ul>
-        </div>
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span>近10期开奖记录</span>
+          </div>
+          <div class="text item felx">
+            <p>期号</p>
+            <p>开奖号</p>
+            <p>开奖时间</p>
+          </div>
+          <div v-for="(item, index) in resulu" class="text item">
+            <p>{{ item.issue }}</p>
+            <p class="issueContent">{{ item.content }}</p>
+            <p>{{ item.updated_at }}</p>
+          </div>
+        </el-card>
+
+        <el-card class="box-card">
+          <div slot="header" class="clearfix">
+            <span>投注记录</span>
+          </div>
+          <div class="text item felx">
+            <p>期号</p>
+            <p>金额</p>
+            <p>投注内容</p>
+            <p>奖金</p>
+          </div>
+          <div v-for="(item, index) in betLogArr" class="text item">
+            <p>{{ item.issue }}</p>
+            <p>{{ item.play_score }}</p>
+            <p class="issueContent">{{ item.content }}</p>
+            <p v-if="item.status == 1">{{ item.win_score }}</p>
+            <p v-else-if="item.status == 2">进行中</p>
+            <p v-else-if="item.status == 3">未中奖</p>
+          </div>
+        </el-card>
       </div>
     </div>
   </div>
 </template>
 <script>
-import tab1 from '../components/tabs/tab1'
-import tab2 from '../components/tabs/tab2'
-import http from '../hppt/api'
-import CountDown from 'vue2-countdown'
-import moment from 'moment'
-import 'moment/locale/zh-cn'
-moment.locale('zh-cn')
+import tab1 from "../components/tabs/tab1";
+import tab2 from "../components/tabs/tab2";
+import http from "../hppt/api";
+import moment from "moment";
+import "moment/locale/zh-cn";
+import { clearTimeout } from "timers";
+moment.locale("zh-cn");
 
 export default {
   data() {
     return {
+      timeArr: ["01", "02", "03", "04", "05", "06", "06", "08", "09", "10"],
       currentTime: 0,
       startTime: 0,
       endTime: 0,
-      xxx: '1111',
-      activeName: '北京pk',
-      time: '0',
-      data: [
-        { id: 9, name: '北京pk' },
-        { id: 10, name: '幸运飞艇' }
-      ],
+      xxx: "1111",
+      activeName: "北京pk",
+      time: "0",
+      data: [{ id: 9, name: "北京pk" }, { id: 10, name: "幸运飞艇" }],
       //10期开奖
       resulu: [],
       //当前期号
@@ -90,89 +92,146 @@ export default {
       //房间
       roomArr: [],
       //投注记录
-      betLogArr: []
-    }
+      betLogArr: [],
+      //上一期
+      prevSue:{}
+    };
   },
   components: {
     tab1,
-    tab2,
-    CountDown
+    tab2
   },
   created() {
-    //房间号
-    this.getPlayList()
-    //投注记录
-    this.getbetLog()
+    //初始值
+    this.init();
   },
   methods: {
-    countDownS_cb: function(x) {
-      // console.log(x)
-      //开始倒计时结束之后的回调方法
+    async init() {
+      //玩法
+      let a = await this.getPlayList();
+      let id = this.roomArr[0].room_info[1].id;
+      //最近十期记录
+      let b = await this.result(id);
+      // 获取当前时间
+      let e = await this.getNewTime();
+      //当前期号
+      let c = await this.getnowIssue(id);
+      //获取上一期
+      let d = await this.getPrev(id);
+      //投注记录
+      this.getbetLog();
     },
-    countDownE_cb: function(x) {
-      console.log('倒计时结束')
-      //活动倒计时结束之后的回调方法
-    },
-    handleClick(tab, event) {
+    handleClick(tab) {
       // console.log(tab)
-      let index = tab.index
+      if (this.timeId) {
+        clearInterval(this.timeId);
+      }
+      this.timeId = null;
+
+      let index = tab.index;
       if (index == 0) {
-        let id = this.roomArr[index].room_info[1].id
-        // console.log(id)
-        this.$store.commit('setTab1id', id)
-        this.getnowIssue(id)
-        this.result(id)
+        let id = this.roomArr[index].room_info[1].id;
+        this.$store.commit("setTab1id", id);
+        this.getnowIssue(id);
+        this.result(id);
       } else if (index == 1) {
-        let ids = this.roomArr[index].room_info[0].id
-        this.$store.commit('setTab1id', ids)
-        this.getnowIssue(ids)
-        this.result(ids)
+        let ids = this.roomArr[index].room_info[0].id;
+        this.$store.commit("setTab1id", ids);
+        this.getnowIssue(ids);
+        this.result(ids);
       }
     },
     async getPlayList() {
-      let res = await http.gameList()
-      if (res.status == 200) {
-        this.roomArr = res.data
-        //最近十期记录
-        this.result(this.roomArr[0].room_info[1].id)
-        //当前期号
-        this.getnowIssue(this.roomArr[0].room_info[1].id)
-      }
+      let res = await http.gameList();
+      this.roomArr = res.data;
     },
     async result(id) {
-      let res = await http.Result(id)
-      if (res.status == 200) {
-        this.resulu = res.data.data
-        // console.log(res)
-      }
+      let res = await http.Result(id);
+      this.resulu = res.data.data;
+    },
+    //获取上一期
+    async getPrev(id) {
+      let res = await http.getPrev(id);
+      console.log(res);
+      res.data.content = res.data.content.split(',')
+      this.prevSue = res.data;
+    },
+    //获取当前时间
+    async getNewTime() {
+      let res = await http.getTime();
+      this.newtime = res.data;
     },
     //当前期号
     async getnowIssue(id) {
-      let res = await http.nowIssue(id)
-      if (res.status == 200) {
-        this.nowlssue = res.data;
-        //存到vuex
-        this.$store.commit('setissue',res.data.issue)
+      let res = await http.nowIssue(id);
+      this.nowlssue = res.data;
+      //存到vuex
+      console.log(res);
+      this.$store.commit("setissue", res.data.issue);
+      
+      let newtime = moment(this.newtime).format("x");
+      console.log(newtime)
+      let endTime = moment(res.data.end).format("x");
+      console.log(endTime);
+      let startTime = moment(res.data.start).format("x");
+      if (newtime > endTime) {
+        this.time = "已结束";
+        return;
+      } else if (newtime < startTime) {
+        this.time = "未开始";
+        return;
+      } else {
+        this.Countdown(res.data.start,this.newtime)
       }
+    },
+    //倒计时
+    Countdown(start,end){
+        //时间戳转化
+        let m1 = moment(start);
+        let m2 = moment(end);
+        var du = moment.duration(m2 - m1, "ms");
+        let hours = du.get("hours");
+        let mins = du.get("minutes");
+        let ss = du.get("seconds");
+        let sumTime = hours * 3600 + mins * 60 + ss;
 
-      let m1 = moment(res.data.start)
-      let m2 = moment(res.data.end)
-      var du = moment.duration(m2 - m1, 'ms')
-      let hours = du.get('hours')
-      let mins = du.get('minutes')
-      let ss = du.get('seconds')
-      this.time = hours + ':' + mins + ':' + ss
+        if (this.timeId) {
+          clearInterval(this.timeId);
+          this.timeId = null;
+        }
+        this.timeId = setInterval(() => {
+          sumTime--;
+          this.time = this.formatSeconds(sumTime);
+        }, 1000);
     },
     //投注记录
-    async getbetLog(id) {
-      let res = await http.betLog(24)
-      if (res.status == 200) {
-        this.betLogArr = res.data.data
-        // console.log(res)
+    async getbetLog() {
+      let res = await http.betLog(24);
+      this.betLogArr = res.data.data;
+    },
+    formatSeconds(value) {
+      var theTime = parseInt(value); // 秒
+      var middle = 0; // 分
+      var hour = 0; // 小时
+      if (theTime > 60) {
+        middle = parseInt(theTime / 60);
+        theTime = parseInt(theTime % 60);
+        if (middle > 60) {
+          hour = parseInt(middle / 60);
+          middle = parseInt(middle % 60);
+        }
       }
+      var result = "" + parseInt(theTime);
+      if (middle > 0) {
+        result = "" + parseInt(middle) + ":" + result;
+      }
+      if (hour > 0) {
+        result = "" + parseInt(hour) + ":" + result;
+      }
+      return result;
     }
   }
-}
+};
 </script>
 <style type="text/scss" lang="scss">
 .container {
@@ -231,8 +290,6 @@ export default {
 
   .row-right {
     width: 34%;
-    border-radius: 15px;
-    border: 1px solid #dddddd;
   }
 
   .row-left {
@@ -254,10 +311,6 @@ export default {
         justify-content: space-between;
         align-items: center;
         padding: 10px;
-
-        p {
-          flex: 1;
-        }
       }
     }
 
@@ -295,6 +348,63 @@ export default {
     overflow: hidden;
     white-space: nowrap;
     text-overflow: ellipsis !important;
+  }
+}
+.itemp-tips {
+  font-size: 14px;
+  color: #000;
+  text-align: left;
+}
+
+.text {
+  font-size: 14px;
+}
+
+.item {
+  margin-bottom: 18px;
+  display: flex;
+  justify-content: space-between;
+  p {
+    flex: 1;
+  }
+}
+
+.clearfix:before,
+.clearfix:after {
+  display: table;
+  content: "";
+}
+.clearfix:after {
+  clear: both;
+}
+
+.box-card {
+  width: 100%;
+  margin-bottom: 40px;
+}
+el-card {
+  margin-bottom: 30px !important;
+}
+.el-tabs__content {
+  overflow: inherit !important;
+  position: relative;
+}
+.el-card__body {
+  max-height: 400px;
+  overflow-y: scroll;
+}
+.roundNo {
+  height: auto;
+  display: flex;
+  flex-wrap: wrap;
+  > div {
+    flex: 20%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 16px;
+    line-height: 30px;
+    font-weight: 700;
   }
 }
 </style>

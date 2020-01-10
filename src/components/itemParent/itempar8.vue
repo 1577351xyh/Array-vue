@@ -1,11 +1,11 @@
 <template>
   <div class="itemp">
-<!--    <div v-if="item">{{item.content}}{{item.desc}}</div>-->
+       <div v-if="item" class="itemp-tips">{{item.content}}{{item.desc}}</div>
     <div v-for="(item, index) in ObjArr">
       <item2 :choice="true" :item="item" :chooseType="chooseArray.length"></item2>
     </div>
     <div class="buttom">
-      <el-button type="success">确定下注</el-button>
+      <el-button type="success" @click="buy">确定下注</el-button>
     </div>
 
     <div>
@@ -14,13 +14,10 @@
           <p>{{ item.str }}</p>
           <p>1注</p>
           <p class="flex">
-            每注<el-input
-              size="small"
-              v-model="input"
-            ></el-input
-            >元
+            每注
+            <el-input size="small" v-model="input"></el-input>元
           </p>
-          <p>可中金额?</p>
+          <p>可中金额{{prips}}元</p>
           <p @click="ItemDelete(item,index, '')" class="delete">删除</p>
         </li>
       </ul>
@@ -29,179 +26,224 @@
 </template>
 
 <script>
-import item2 from '../item/item2'
+import item2 from "../item/item2";
 
 export default {
-  name: '',
+  props: {
+    type: Array,
+    item: Object
+  },
+  play_name: "",
   data() {
     return {
       //注数
-      input: '',
+      input: 1,
       nums: 1,
       ObjArr: [
         [
-          { name: '大', odds_id: '1.910', active: 0, id: 1 },
-          { name: '小', odds_id: '1.910', active: 0, id: 2 },
-          { name: '单', odds_id: '1.910', active: 0, id: 3 },
-          { name: '双', odds_id: '1.910', active: 0, id: 4 },
-          { name: '龙', odds_id: '1.910', active: 0, id: 5 },
-          { name: '虎', odds_id: '1.910', active: 0, id: 6 }
+          { play_name: "大", odds: "1.910", active: 0, id: 1 },
+          { play_name: "小", odds: "1.910", active: 0, id: 2 },
+          { play_name: "单", odds: "1.910", active: 0, id: 3 },
+          { play_name: "双", odds: "1.910", active: 0, id: 4 },
+          { play_name: "龙", odds: "1.910", active: 0, id: 5 },
+          { play_name: "虎", odds: "1.910", active: 0, id: 6 }
         ],
         [
-          { name: '大', odds_id: '1.910', active: 0, id: 7 },
-          { name: '小', odds_id: '1.910', active: 0, id: 8 },
-          { name: '单', odds_id: '1.910', active: 0, id: 9 },
-          { name: '双', odds_id: '1.910', active: 0, id: 10 },
-          { name: '龙', odds_id: '1.910', active: 0, id: 11 },
-          { name: '虎', odds_id: '1.910', active: 0, id: 12 }
+          { play_name: "大", odds: "1.910", active: 0, id: 7 },
+          { play_name: "小", odds: "1.910", active: 0, id: 8 },
+          { play_name: "单", odds: "1.910", active: 0, id: 9 },
+          { play_name: "双", odds: "1.910", active: 0, id: 10 },
+          { play_name: "龙", odds: "1.910", active: 0, id: 11 },
+          { play_name: "虎", odds: "1.910", active: 0, id: 12 }
         ],
         [
-          { name: '大', odds_id: '1.910', active: 0, id: 13 },
-          { name: '小', odds_id: '1.910', active: 0, id: 14 },
-          { name: '单', odds_id: '1.910', active: 0, id: 15 },
-          { name: '双', odds_id: '1.910', active: 0, id: 16 },
-          { name: '龙', odds_id: '1.910', active: 0, id: 17 },
-          { name: '虎', odds_id: '1.910', active: 0, id: 18 }
+          { play_name: "大", odds: "1.910", active: 0, id: 13 },
+          { play_name: "小", odds: "1.910", active: 0, id: 14 },
+          { play_name: "单", odds: "1.910", active: 0, id: 15 },
+          { play_name: "双", odds: "1.910", active: 0, id: 16 },
+          { play_name: "龙", odds: "1.910", active: 0, id: 17 },
+          { play_name: "虎", odds: "1.910", active: 0, id: 18 }
         ],
         [
-          { name: '大', odds_id: '1.910', active: 0, id: 19 },
-          { name: '小', odds_id: '1.910', active: 0, id: 20 },
-          { name: '单', odds_id: '1.910', active: 0, id: 21 },
-          { name: '双', odds_id: '1.910', active: 0, id: 22 },
-          { name: '龙', odds_id: '1.910', active: 0, id: 23 },
-          { name: '虎', odds_id: '1.910', active: 0, id: 24 }
+          { play_name: "大", odds: "1.910", active: 0, id: 19 },
+          { play_name: "小", odds: "1.910", active: 0, id: 20 },
+          { play_name: "单", odds: "1.910", active: 0, id: 21 },
+          { play_name: "双", odds: "1.910", active: 0, id: 22 },
+          { play_name: "龙", odds: "1.910", active: 0, id: 23 },
+          { play_name: "虎", odds: "1.910", active: 0, id: 24 }
         ],
         [
-          { name: '大', odds_id: '1.910', active: 0, id: 13 },
-          { name: '小', odds_id: '1.910', active: 0, id: 14 },
-          { name: '单', odds_id: '1.910', active: 0, id: 15 },
-          { name: '双', odds_id: '1.910', active: 0, id: 16 },
-          { name: '龙', odds_id: '1.910', active: 0, id: 17 },
-          { name: '虎', odds_id: '1.910', active: 0, id: 18 }
+          { play_name: "大", odds: "1.910", active: 0, id: 13 },
+          { play_name: "小", odds: "1.910", active: 0, id: 14 },
+          { play_name: "单", odds: "1.910", active: 0, id: 15 },
+          { play_name: "双", odds: "1.910", active: 0, id: 16 },
+          { play_name: "龙", odds: "1.910", active: 0, id: 17 },
+          { play_name: "虎", odds: "1.910", active: 0, id: 18 }
         ],
         [
-          { name: '大', odds_id: '1.910', active: 0, id: 19 },
-          { name: '小', odds_id: '1.910', active: 0, id: 20 },
-          { name: '单', odds_id: '1.910', active: 0, id: 21 },
-          { name: '双', odds_id: '1.910', active: 0, id: 22 },
-          { name: '龙', odds_id: '1.910', active: 0, id: 23 },
-          { name: '虎', odds_id: '1.910', active: 0, id: 24 }
+          { play_name: "大", odds: "1.910", active: 0, id: 19 },
+          { play_name: "小", odds: "1.910", active: 0, id: 20 },
+          { play_name: "单", odds: "1.910", active: 0, id: 21 },
+          { play_name: "双", odds: "1.910", active: 0, id: 22 },
+          { play_name: "龙", odds: "1.910", active: 0, id: 23 },
+          { play_name: "虎", odds: "1.910", active: 0, id: 24 }
         ],
         [
-          { name: '大', odds_id: '1.910', active: 0, id: 25 },
-          { name: '小', odds_id: '1.910', active: 0, id: 26 },
-          { name: '单', odds_id: '1.910', active: 0, id: 27 },
-          { name: '双', odds_id: '1.910', active: 0, id: 28 },
-          { name: '龙', odds_id: '1.910', active: 0, id: 29 },
-          { name: '虎', odds_id: '1.910', active: 0, id: 24 }
+          { play_name: "大", odds: "1.910", active: 0, id: 25 },
+          { play_name: "小", odds: "1.910", active: 0, id: 26 },
+          { play_name: "单", odds: "1.910", active: 0, id: 27 },
+          { play_name: "双", odds: "1.910", active: 0, id: 28 },
+          { play_name: "龙", odds: "1.910", active: 0, id: 29 },
+          { play_name: "虎", odds: "1.910", active: 0, id: 24 }
         ],
         [
-          { name: '大', odds_id: '1.910', active: 0, id: 30 },
-          { name: '小', odds_id: '1.910', active: 0, id: 31 },
-          { name: '单', odds_id: '1.910', active: 0, id: 32 },
-          { name: '双', odds_id: '1.910', active: 0, id: 33 },
-          { name: '龙', odds_id: '1.910', active: 0, id: 34 },
-          { name: '虎', odds_id: '1.910', active: 0, id: 35 }
+          { play_name: "大", odds: "1.910", active: 0, id: 30 },
+          { play_name: "小", odds: "1.910", active: 0, id: 31 },
+          { play_name: "单", odds: "1.910", active: 0, id: 32 },
+          { play_name: "双", odds: "1.910", active: 0, id: 33 },
+          { play_name: "龙", odds: "1.910", active: 0, id: 34 },
+          { play_name: "虎", odds: "1.910", active: 0, id: 35 }
         ],
         [
-          { name: '大', odds_id: '1.910', active: 0, id: 36 },
-          { name: '小', odds_id: '1.910', active: 0, id: 37 },
-          { name: '单', odds_id: '1.910', active: 0, id: 38 },
-          { name: '双', odds_id: '1.910', active: 0, id: 39 },
-          { name: '龙', odds_id: '1.910', active: 0, id: 40 },
-          { name: '虎', odds_id: '1.910', active: 0, id: 41 }
+          { play_name: "大", odds: "1.910", active: 0, id: 36 },
+          { play_name: "小", odds: "1.910", active: 0, id: 37 },
+          { play_name: "单", odds: "1.910", active: 0, id: 38 },
+          { play_name: "双", odds: "1.910", active: 0, id: 39 },
+          { play_name: "龙", odds: "1.910", active: 0, id: 40 },
+          { play_name: "虎", odds: "1.910", active: 0, id: 41 }
         ],
         [
-          { name: '大', odds_id: '1.910', active: 0, id: 42 },
-          { name: '小', odds_id: '1.910', active: 0, id: 43 },
-          { name: '单', odds_id: '1.910', active: 0, id: 44 },
-          { name: '双', odds_id: '1.910', active: 0, id: 45 },
-          { name: '龙', odds_id: '1.910', active: 0, id: 46 },
-          { name: '虎', odds_id: '1.910', active: 0, id: 47 }
+          { play_name: "大", odds: "1.910", active: 0, id: 42 },
+          { play_name: "小", odds: "1.910", active: 0, id: 43 },
+          { play_name: "单", odds: "1.910", active: 0, id: 44 },
+          { play_name: "双", odds: "1.910", active: 0, id: 45 },
+          { play_name: "龙", odds: "1.910", active: 0, id: 46 },
+          { play_name: "虎", odds: "1.910", active: 0, id: 47 }
         ]
       ],
-      str: '',
+      str: "",
+      odds: 0,
       childerArr: [],
       chooseArray: []
-    }
+    };
   },
   components: {
     item2
   },
+  computed: {
+    prips() {
+      let s = Math.round(this.input * this.odds * 100) / 100;
+      return s;
+    }
+  },
   methods: {
-    buy() {},
-    handleChange(value) {
-      console.log(value)
+    buy() {
+      //拿到当前选中的元素
+      let obj = {
+        multiple: 1,
+        num: 1,
+        content: this.str,
+        //描述
+        play_desc: this.item.name,
+        //赔率
+        odds: this.odds,
+        money: this.input
+      };
+      this.$store.dispatch("buy", obj).then(res => {
+        if (res.data.code === 200) {
+          this.$message({ type: "success", message: res.data.message });
+        } else {
+          this.$message({ type: "info", message: res.data.message });
+        }
+      });
+      this.ObjArr.forEach(vm => {
+        vm.forEach(vms => {
+          vms.active = 0;
+        });
+      });
+      this.chooseArray = [];
+      this.str = "";
+      this.input = 1;
+      this.nums = 0;
+      this.BetArr = [];
+      this.delete();
+    },
+    oddsfn(item) {
+      this.odds = item.id;
+      // this.ObjArr.forEach(vm => {
+      //   vm.forEach(vms => {
+      //     if (vms.id == id) {
+      //       this.odds = vms.id;
+      //     }
+      //   });
+      // });
     },
     onChange(item) {
-      this.str = ''
+      this.str = "";
+      //计算倍率
       this.childerArr = this.$children.filter(
-        vm => vm.$options.name === 'items'
-      )
+        vm => vm.$options.name === "items"
+      );
       for (let i = 0; i < this.childerArr.length; i++) {
-        let vm = this.$children[i]
-        //当前选中的字符串序列
-        this.forin(vm.activeItem, i)
+        let vm = this.$children[i];
+        this.forin(vm.activeItem, i);
       }
-      this.str = this.str.substr(0, this.str.length - 1)
-      let strs = this.str
-      console.log(`当前选中:${strs}`)
-      this.submit(item)
+      this.str = this.str.substr(0, this.str.length - 1);
+      // console.log(`当前选中:${this.str}`);
+      this.oddsfn(item);
+      this.submit(item);
     },
     submit(item) {
       //先提交数据
-        this.chooseArray.push({
-          id: item.id,
-          str: this.str,
-          nums: this.nums
-        })
-        this.str = ''
-        this.nums = 0
-        this.childerArr = this.$children.filter(
-          vm => vm.$options.name === 'items'
-        )
-        //清空
-        this.delete(this.childerArr)
+      this.chooseArray.push({
+        id: item.id,
+        str: this.str,
+        nums: this.nums
+      });
+      //清空选项
+      this.delete();
     },
     forin(arr) {
       if (arr.length === 0) {
-        this.str += '-,'
+        this.str += "-,";
       } else {
         for (let j = 0; j < arr.length; j++) {
-          this.str += arr[j] + ','
+          this.str += arr[j] + ",";
         }
       }
     },
-    // //清空
-    delete(arr) {
-      for (let i = 0; i < arr.length; i++) {
-        let vm = arr[i]
-        vm.activeItem = []
-        vm.indexs = undefined
+    //清空
+    delete() {
+      this.childerArr = this.$children.filter(
+        vm => vm.$options.name === "items"
+      );
+      for (let i = 0; i < this.childerArr.length; i++) {
+        let vm = this.childerArr[i];
+        vm.activeItem = [];
+        vm.indexs = undefined;
       }
-      this.BetArr = []
-      this.str = ''
     },
-    ItemDelete(items,index, item) {
+    ItemDelete(items, index, item) {
       if (item) {
         for (let i = 0; i < this.chooseArray.length; i++) {
           if (this.chooseArray[i].id === item.id) {
-            this.chooseArray.splice(i, 1)
+            this.chooseArray.splice(i, 1);
           }
         }
-        return
+        return;
       }
       this.chooseArray.splice(index, 1);
-      this.childerArr.forEach(vm=>{
-        vm.item.forEach(vms=>{
-          if(vms.id === items.id){
-            vms.active =0;
+      this.childerArr.forEach(vm => {
+        vm.activeItem = [];
+        vm.item.forEach(vms => {
+          if (vms.id === items.id) {
+            vms.active = 0;
           }
-        })
-      })
+        });
+      });
     }
   }
-}
+};
 </script>
 
 <style scoped>
