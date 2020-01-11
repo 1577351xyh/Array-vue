@@ -46,6 +46,7 @@ const store = new Vuex.Store({
         getbetLog(context){
             http.betLog(24)
             .then(res=>{
+                console.log(res)
                 this.commit('SET_BETLOG',res.data.data)
             })
             

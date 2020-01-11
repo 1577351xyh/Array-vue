@@ -44,7 +44,8 @@ export default {
       ObjArr2: [],
       str: "",
       odds: 0,
-      chooseArray: []
+      chooseArray: [],
+      timeId:null
     };
   },
   components: {
@@ -72,6 +73,10 @@ export default {
     },
 
     buy() {
+      if(this.timeId){
+        window.clearTimeout(this.timeId);
+        this.timeId = null;
+      }
       // 计算赔率
       let obj = {
         multiple: 1,
@@ -85,8 +90,10 @@ export default {
       };
       this.$store.dispatch("buy", obj).then(res => {
         if (res.data.code === 200) {
-          this.$message({type: "success",message: res.data.message});
-          this.$store.dispatch('getbetLog');
+          this.$message({type: "success",message: res.data.data});
+          this.timeId = setTimeout(()=>{
+            this.$store.dispatch("getbetLog");
+          },2000)
         } else {
           this.$message({
             type: "info",

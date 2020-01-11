@@ -1,6 +1,6 @@
 <template>
   <div class="itemp">
-       <div v-if="item" class="itemp-tips">{{item.content}}{{item.desc}}</div>
+    <div v-if="item" class="itemp-tips">{{item.content}}{{item.desc}}</div>
     <div v-for="(item, index) in ObjArr">
       <item2 :choice="true" :item="item" :chooseType="chooseArray.length"></item2>
     </div>
@@ -31,7 +31,8 @@ import item2 from "../item/item2";
 export default {
   props: {
     type: Array,
-    item: Object
+    item: Object,
+    oddNum: Number
   },
   play_name: "",
   data() {
@@ -124,7 +125,8 @@ export default {
       str: "",
       odds: 0,
       childerArr: [],
-      chooseArray: []
+      chooseArray: [],
+      timeId: null
     };
   },
   components: {
@@ -138,6 +140,10 @@ export default {
   },
   methods: {
     buy() {
+      if (this.timeId) {
+        window.clearTimeout(this.timeId);
+        this.timeId = null;
+      }
       //拿到当前选中的元素
       let obj = {
         multiple: 1,
@@ -146,13 +152,15 @@ export default {
         //描述
         play_desc: this.item.name,
         //赔率
-        odds: this.odds,
+        odds_id: this.oddNum,
         money: this.input
       };
       this.$store.dispatch("buy", obj).then(res => {
         if (res.data.code === 200) {
-          this.$message({ type: "success", message: res.data.message });
-          this.$store.dispatch('getbetLog');
+          this.$message({ type: "success", message: res.data.data });
+          this.timeId = setTimeout(() => {
+            this.$store.dispatch("getbetLog");
+          }, 2000);
         } else {
           this.$message({ type: "info", message: res.data.message });
         }
@@ -169,9 +177,6 @@ export default {
       this.BetArr = [];
       this.delete();
     },
-    oddsfn(item) {
-      this.odds = item.id;
-    },
     onChange(item) {
       this.str = "";
       //计算倍率
@@ -184,7 +189,6 @@ export default {
       }
       this.str = this.str.substr(0, this.str.length - 1);
       // console.log(`当前选中:${this.str}`);
-      this.oddsfn(item);
       this.submit(item);
     },
     submit(item) {

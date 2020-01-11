@@ -65,7 +65,8 @@ export default {
       BetNub: "",
       newArray: [],
       chooseArray: [],
-      arr: []
+      arr: [],
+      timeId:null
     };
   },
   components: {
@@ -102,6 +103,10 @@ export default {
   },
   methods: {
     buy() {
+      if(this.timeId){
+        window.clearTimeout(this.timeId);
+        this.timeId = null;
+      }
       let obj = {
         multiple: this.num,
         num: this.nums,
@@ -116,9 +121,11 @@ export default {
         if (res.data.code === 200) {
           this.$message({
             type: "success",
-            message: res.data.message
+            message: res.data.data
           });
-          this.$store.dispatch('getbetLog');
+         this.timeId = setTimeout(()=>{
+            this.$store.dispatch("getbetLog");
+          },2000)
         } else {
           this.$message({
             type: "info",

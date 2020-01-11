@@ -29,12 +29,12 @@
 
     <div>
       <ul class="ul-box">
-        <li v-for="(item,index) in chooseArray">
-          <p>{{item.str}}</p>
-          <p>{{item.nums}}注</p>
-          <p>{{item.num}}倍</p>
-          <p>{{item.price}}元</p>
-          <p>可中金额{{oddNum*item.num}}</p>
+        <li v-for="(i,index) in chooseArray">
+          <p>{{i.str}}</p>
+          <p>{{i.nums}}注</p>
+          <p>{{i.num}}倍</p>
+          <p>{{i.price}}元</p>
+          <p>可中金额{{item.odds*i.num}}</p>
           <p @click="ItemDelete(index)" class="delete">删除</p>
         </li>
       </ul>
@@ -65,7 +65,8 @@ export default {
       BetNub: "",
       newArray: [],
       chooseArray: [],
-      arr: []
+      arr: [],
+      timeId:null
     };
   },
   components: {
@@ -102,6 +103,11 @@ export default {
   },
   methods: {
     buy() {
+      console.log(this.item)
+      if (this.timeId) {
+        window.clearTimeout(this.timeId)
+        this.timeId = null;
+      }
       let obj = {
         multiple: this.num,
         num: this.nums,
@@ -116,9 +122,11 @@ export default {
         if (res.data.code === 200) {
           this.$message({
             type: "success",
-            message: res.data.message
+            message: res.data.data
           });
-          this.$store.dispatch('getbetLog');
+         this.timeId = setTimeout(()=>{
+            this.$store.dispatch("getbetLog");
+          },2000)
         } else {
           this.$message({
             type: "info",

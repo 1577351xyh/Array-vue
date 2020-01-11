@@ -9,7 +9,7 @@
         <itemPar5 :item="item" :oddNum="oddNum" v-else-if="item.id == 63"></itemPar5>
         <itemPar6 :item="item" :oddNum="oddNum" v-else-if="item.id == 64"></itemPar6>
         <itemPar7 ref="mychild" :item="item" v-else-if="item.id == 65"></itemPar7>
-        <itemPar8 :item="item" v-else-if="item.id == 66"></itemPar8>
+        <itemPar8 :item="item" :oddNum="oddNum" v-else-if="item.id == 66"></itemPar8>
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -85,10 +85,12 @@ export default {
         this.$refs.mychild[0].getArr(res.data);
       }
       this.oddNum = res.data[0].id;
-      this.addObj(0, this.oddNum);
+      this.odds = res.data[0].odds;
+      this.addObj(0, this.oddNum,this.odds);
     },
-    async addObj(index, oddNum) {
+    async addObj(index, oddNum,odds) {
       this.playListArr[index].oddNum = oddNum;
+      this.playListArr[index].odds = odds;
     }
   }
 };

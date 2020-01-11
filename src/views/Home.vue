@@ -3,11 +3,17 @@
     <div class="container-top">
       <div class="flex size24">{{ this.activeName }}</div>
       <div class="flex-2">
-        <div class="flex">距<p style="color:red">{{ nowlssue.issue }}</p>期投注截止还有</div>
+        <div class="flex">
+          距
+          <p style="color:red">{{ nowlssue.issue }}</p>期投注截止还有
+        </div>
         <div class="time">{{ time }}</div>
       </div>
       <div class="flex-2">
-        <div class="flex">第<p style="color:red">{{ prevSue.issue }}</p>期开奖号码</div>
+        <div class="flex">
+          第
+          <p style="color:red">{{ prevSue.issue }}</p>期开奖号码
+        </div>
         {{lottery_time}}
         <div class="roundNo">
           <div v-for="o in prevSue.content">{{o}}</div>
@@ -70,6 +76,8 @@ const tab1 = () => import("../components/tabs/tab1");
 import http from "../hppt/api";
 import moment from "moment";
 import "moment/locale/zh-cn";
+import { clearInterval } from "timers";
+import { async } from 'q';
 moment.locale("zh-cn");
 
 export default {
@@ -127,7 +135,7 @@ export default {
     },
     handleClick(tab) {
       if (this.timeId) {
-        clearInterval(this.timeId);
+        window.clearInterval(this.timeId);
       }
       this.timeId = null;
       let index = tab.index;
@@ -177,7 +185,8 @@ export default {
       let startTime = Number(moment(res.data.start).format("x"));
       //开奖时间
       let lottery_time = moment(res.data.lottery_time).format("x");
-
+      console.log(newtime)
+      console.log(startTime)
       if (newtime < startTime) {
         //未开始
         this.time = "未开始";
@@ -207,20 +216,25 @@ export default {
       let mins = du.get("minutes");
       let ss = du.get("seconds");
       let sumTime = hours * 3600 + mins * 60 + ss;
-
+      console.log(sumTime);
       if (this.timeId) {
-        clearInterval(this.timeId);
+        window.clearInterval(this.timeId);
         this.timeId = null;
       }
-      this.timeId = setInterval(() => {
-        if (sumTime == 1) {
+      if (this.timeIds) {
+        window.clearTimeout(this.timeIds);
+        this.timeIds = null;
+      }
+      this.timeId = setInterval( async () => {
+        if (sumTime == 0) {
           //请求最新的
-          if (this.timeIds) {
-            clearTimeout(this.timeIds);
-            this.timeIds = null;
-          }
           console.log("我重新请求了");
-          this.getnowIssue(this.$store.state.oddsid);
+          window.clearInterval(this.timeId);
+          this.timeId = null;
+          //重新请求当前时间
+          let i = await this.getNewTime();
+          //重新请求当前期
+          let j = await this.getnowIssue(this.$store.state.oddsid);
           this.lottery_time = "正在开奖";
           this.timeIds = setTimeout(() => {
             //抽奖结果
@@ -363,7 +377,6 @@ export default {
     align-items: center;
     text-overflow: ellipsis; /*超出部分文字以...显示*/
   }
-  
 }
 .itemp-tips {
   font-size: 14px;

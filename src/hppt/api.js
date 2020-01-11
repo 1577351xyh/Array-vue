@@ -48,15 +48,15 @@ http.betting = ({ room_id, issue, }, { multiple, num, odds_id, content, play_des
         room_id: room_id,
         //当前期拿
         issue: issue,
-        multiple,
-        num,
-        odds_id,
-        content,
-        play_desc,
-        money,
-        // bet_info: [
-        //     { multiple, num, odds_id, content, play_desc, money }
-        // ]
+        // multiple,
+        // num,
+        // odds_id,
+        // content,
+        // play_desc,
+        // money,
+        bet_info: [
+             {multiple, num, odds_id, content, play_desc, money }
+        ]
     })
 }
 //获取服务器时间
@@ -99,6 +99,7 @@ http.interceptors.response.use(
                 message: res.data.message || 'error'
             })
         }
+
         // 令牌过期,过期登录
         if (res.code === 501) {
             MessageBox.confirm(
