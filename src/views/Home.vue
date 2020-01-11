@@ -141,17 +141,21 @@ export default {
       let index = tab.index;
       if (tab.name == "北京pk") {
         let id = this.roomArr[index].room_info[1].id;
-        this.$store.commit("SET_TABID", id);
-        this.getnowIssue(id);
-        this.result(id);
-        this.getPrev(id);
+        this.itemFn(id)
       } else if (tab.name == "幸运飞艇") {
         let ids = this.roomArr[index].room_info[0].id;
-        this.$store.commit("SET_TABID", ids);
-        this.getnowIssue(ids);
-        this.result(ids);
-        this.getPrev(ids);
+        this.itemFn(ids)
       }
+    },
+    itemFn(id){
+      //房间id
+        this.$store.commit("SET_TABID", id);
+        //获取当前期号
+        this.getnowIssue(id);
+        //获取近10期
+        this.result(id);
+        //获取上一期
+        this.getPrev(id);
     },
     async getPlayList() {
       let res = await http.gameList();
@@ -185,14 +189,12 @@ export default {
       let startTime = Number(moment(res.data.start).format("x"));
       //开奖时间
       let lottery_time = moment(res.data.lottery_time).format("x");
-      console.log(newtime)
-      console.log(startTime)
       if (newtime < startTime) {
         //未开始
         this.time = "未开始";
         return;
       } else if (startTime < newtime && newtime < endTime) {
-        //进行时间
+        //进行时间 进入倒计时
         this.Countdown(res.data.end, this.newtime, res.data.lottery_time);
         return;
       } else if (endTime < newtime && newtime < endTime) {
@@ -210,13 +212,11 @@ export default {
       let ends = moment(end);
       let news = moment(newtime);
       let lottery_times = moment(lottery_time);
-
       var du = moment.duration(ends - news, "ms");
       let hours = du.get("hours");
       let mins = du.get("minutes");
       let ss = du.get("seconds");
       let sumTime = hours * 3600 + mins * 60 + ss;
-      console.log(sumTime);
       if (this.timeId) {
         window.clearInterval(this.timeId);
         this.timeId = null;
@@ -227,8 +227,6 @@ export default {
       }
       this.timeId = setInterval( async () => {
         if (sumTime == 0) {
-          //请求最新的
-          console.log("我重新请求了");
           window.clearInterval(this.timeId);
           this.timeId = null;
           //重新请求当前时间
@@ -249,6 +247,7 @@ export default {
         this.time = this.formatSeconds(sumTime);
       }, 1000);
     },
+    //拼接倒计时字符串
     formatSeconds(value) {
       let result = parseInt(value);
       var h =

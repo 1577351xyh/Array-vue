@@ -5,20 +5,15 @@ Vue.use(Vuex)
 
 const store = new Vuex.Store({
     state: {
-        // item: [],
-        // tab1 id 房间id
+        // 房间id
         oddsid: '9',
         odd:19.1,
         buyObj:{},
         //期号
         issue:'',
         betLog:[],
-      
     },
     mutations: {
-        // addItem(state, obj) {
-        //     state.item.push(obj);
-        // },
         SET_TABID(state, id){
             state.oddsid = id;
         },
@@ -34,8 +29,7 @@ const store = new Vuex.Store({
         SET_ODDS(state,odd){
           state.odd = odd;
         }
-    }
-    ,
+    },
     actions: {
         buy(context,args){
             let obj = {
@@ -50,12 +44,9 @@ const store = new Vuex.Store({
         getbetLog(context){
             http.betLog(24)
             .then(res=>{
-                console.log(res)
                 this.commit('SET_BETLOG',res.data.data)
             })
-            
         }
-
     },
     modules: {}
 })

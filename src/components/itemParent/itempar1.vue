@@ -142,7 +142,7 @@ export default {
     },
     submit() {
       //先提交数据
-      if (this.str == "-,-,-,-,-,-,-,-,-,-") {
+      if (this.str == "-,-,-,-,-,-,-,-,-,-"||this.str=='') {
         this.$notify.info({
           title: "消息",
           message: "当前注为0,请投注"
