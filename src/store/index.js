@@ -33,7 +33,8 @@ const store = new Vuex.Store({
             state.buyObj = obj
         },
         setissue(state,sue){
-            state.issue = sue
+            state.issue = sue;
+            console.log(state.issue)
         },
     }
     ,

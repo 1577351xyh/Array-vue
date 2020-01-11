@@ -19,12 +19,11 @@
           <el-tab-pane label="北京pk" name="北京pk">
             <tab1></tab1>
           </el-tab-pane>
-          <el-tab-pane label="幸运飞艇" name="幸运飞艇">
-            <tab2></tab2>
+          <el-tab-pane label="幸运飞艇" name="幸运飞艇" lazy>
+            <tab1></tab1>
           </el-tab-pane>
         </el-tabs>
       </div>
-
       <div class="row-right">
         <el-card class="box-card">
           <div slot="header" class="clearfix">
@@ -66,12 +65,10 @@
   </div>
 </template>
 <script>
-import tab1 from "../components/tabs/tab1";
-import tab2 from "../components/tabs/tab2";
+const tab1 = () => import('../components/tabs/tab1')
 import http from "../hppt/api";
 import moment from "moment";
 import "moment/locale/zh-cn";
-import { clearTimeout } from "timers";
 moment.locale("zh-cn");
 
 export default {
@@ -99,7 +96,6 @@ export default {
   },
   components: {
     tab1,
-    tab2
   },
   created() {
     //初始值
@@ -113,37 +109,38 @@ export default {
       //最近十期记录
       let b = await this.result(id);
       // 获取当前时间
-      let e = await this.getNewTime();
+      let c = await this.getNewTime();
       //当前期号
-      let c = await this.getnowIssue(id);
+      let d = await this.getnowIssue(id);
       //获取上一期
-      let d = await this.getPrev(id);
+      let e = await this.getPrev(id);
       //投注记录
       this.getbetLog();
     },
     handleClick(tab) {
-      // console.log(tab)
       if (this.timeId) {
         clearInterval(this.timeId);
       }
       this.timeId = null;
-
       let index = tab.index;
-      if (index == 0) {
+      if (tab.name == '北京pk') {
         let id = this.roomArr[index].room_info[1].id;
         this.$store.commit("setTab1id", id);
         this.getnowIssue(id);
         this.result(id);
-      } else if (index == 1) {
+        this.getPrev(id);
+      } else if (tab.name == '幸运飞艇') {
         let ids = this.roomArr[index].room_info[0].id;
         this.$store.commit("setTab1id", ids);
         this.getnowIssue(ids);
         this.result(ids);
+        this.getPrev(ids);
       }
     },
     async getPlayList() {
       let res = await http.gameList();
       this.roomArr = res.data;
+      console.log(this.roomArr)
     },
     async result(id) {
       let res = await http.Result(id);
@@ -152,7 +149,6 @@ export default {
     //获取上一期
     async getPrev(id) {
       let res = await http.getPrev(id);
-      console.log(res);
       res.data.content = res.data.content.split(',')
       this.prevSue = res.data;
     },
@@ -166,13 +162,9 @@ export default {
       let res = await http.nowIssue(id);
       this.nowlssue = res.data;
       //存到vuex
-      console.log(res);
       this.$store.commit("setissue", res.data.issue);
-      
       let newtime = moment(this.newtime).format("x");
-      console.log(newtime)
       let endTime = moment(res.data.end).format("x");
-      console.log(endTime);
       let startTime = moment(res.data.start).format("x");
       if (newtime > endTime) {
         this.time = "已结束";
