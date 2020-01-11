@@ -45,7 +45,8 @@ export default {
       str: "",
       odds: 0,
       chooseArray: [],
-      timeId:null
+      timeId:null,
+      oddsnum:0
     };
   },
   components: {
@@ -53,7 +54,7 @@ export default {
   },
   computed: {
     price() {
-      return this.input * this.odds;
+      return this.input * this.oddsnum;
     }
   },
   methods: {
@@ -105,15 +106,18 @@ export default {
       this.str = "";
       this.nums = 0;
       this.odds = 0;
-      this.input = 0;
+      this.input = 1;
       this.delete();
-    },
-    oddsfn(item) {
-      this.odds = item.id;
     },
     //当前选中的值,当前选中的行
     onChange(item) {
-      this.oddsfn(item);
+       if(this.chooseArray.length>=1){
+        return;
+      }
+      //赔率id
+      this.odds = item.id;
+      //赔率
+      this.oddsnum = item.odds;
       this.str = "";
       this.forin(item);
       let strs = this.str;
@@ -155,7 +159,8 @@ export default {
       }
       this.chooseArray.splice(index, 1);
       this.delete();
-    }
+    },
+    
   }
 };
 </script>

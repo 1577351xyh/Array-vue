@@ -16,14 +16,6 @@
 </template>
 <script>
 
-// const itemPar1 = ()=> import('')
-// const itemPar2 = ()=> import('../itemParent/itempar2')
-// const itemPar3 = ()=> import('../itemParent/itempar3')
-// const itemPar4 = ()=> import('../itemParent/itempar4')
-// const itemPar5 = ()=> import('../itemParent/itempar5')
-// const itemPar6 = ()=> import('../itemParent/itempar6')
-// const itemPar7 = ()=> import('../itemParent/itempar7')
-// const itemPar8 = ()=> import('../itemParent/itempar8')
 import itemPar1 from '../itemParent/itempar1'
 import itemPar2 from '../itemParent/itempar2'
 import itemPar3 from '../itemParent/itempar2'
@@ -85,7 +77,8 @@ export default {
         this.$refs.mychild[0].getArr(res.data);
       }
       this.oddNum = res.data[0].id;
-      this.odds = res.data[0].odds;
+      // this.odds = res.data[0].odds;
+      this.$store.commit('SET_ODDS',res.data[0].odds)
       this.addObj(0, this.oddNum,this.odds);
     },
     async addObj(index, oddNum,odds) {

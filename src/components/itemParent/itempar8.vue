@@ -126,7 +126,8 @@ export default {
       odds: 0,
       childerArr: [],
       chooseArray: [],
-      timeId: null
+      timeId: null,
+      oddsnum:0
     };
   },
   components: {
@@ -134,7 +135,7 @@ export default {
   },
   computed: {
     prips() {
-      let s = Math.round(this.input * this.odds * 100) / 100;
+      let s = Math.round(this.input * this.oddsnum * 100) / 100;
       return s;
     }
   },
@@ -178,6 +179,9 @@ export default {
       this.delete();
     },
     onChange(item) {
+       if(this.chooseArray.length>=1){
+        return;
+      }
       this.str = "";
       //计算倍率
       this.childerArr = this.$children.filter(
@@ -190,6 +194,7 @@ export default {
       this.str = this.str.substr(0, this.str.length - 1);
       // console.log(`当前选中:${this.str}`);
       this.submit(item);
+      this.oddsnum = item.odds;
     },
     submit(item) {
       //先提交数据

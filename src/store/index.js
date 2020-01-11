@@ -12,7 +12,8 @@ const store = new Vuex.Store({
         buyObj:{},
         //期号
         issue:'',
-        betLog:[]
+        betLog:[],
+      
     },
     mutations: {
         // addItem(state, obj) {
@@ -29,6 +30,9 @@ const store = new Vuex.Store({
         },
         SET_BETLOG(state,arr){
             state.betLog = arr;
+        },
+        SET_ODDS(state,odd){
+          state.odd = odd;
         }
     }
     ,

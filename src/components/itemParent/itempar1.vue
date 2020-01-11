@@ -15,7 +15,7 @@
           v-model="num"
           @change="handleChange"
           :min="1"
-          :max="10"
+          :max="99"
           label="描述文字"
           size="small"
         ></el-input-number>
@@ -38,7 +38,7 @@
           <p>{{item.nums}}注</p>
           <p>{{item.num}}倍</p>
           <p>{{item.price}}元</p>
-          <p>可中金额{{item.price * 1.91}}</p>
+          <p>可中金额{{(item.price * 1.91).toFixed(2)}}</p>
           <p @click="ItemDelete(index)" class="delete">删除</p>
         </li>
       </ul>
@@ -101,7 +101,7 @@ export default {
   computed: {
     //价格
     priceComputed() {
-      this.price = this.num * 2 * this.nums;
+      this.price = (this.num * 2 * this.nums).toFixed(2);
       return this.num * 2 * this.nums;
     }
   },
@@ -113,8 +113,8 @@ export default {
         this.timeId = null;
       }
       let obj = {
-        multiple: this.num,
-        num: this.nums,
+        multiple: this.chooseArray[0].num,
+        num: this.chooseArray[0].nums,
         content: this.str,
         //描述
         play_desc: this.item.name,
@@ -163,6 +163,9 @@ export default {
       this.delete(this.childerArr);
     },
     onChange(item) {
+       if(this.chooseArray.length>=1){
+        return;
+      }
       this.str = "";
       this.childerArr = this.$children.filter(
         vm => vm.$options.name === "items"
@@ -203,7 +206,8 @@ export default {
     },
     ItemDelete(index) {
       this.chooseArray.splice(index, 1);
-    }
+    },
+    handleChange(){}
   }
 };
 </script>

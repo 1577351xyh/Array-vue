@@ -12,7 +12,7 @@
           v-model="num"
           @change="handleChange"
           :min="1"
-          :max="10"
+          :max="99"
           label="描述文字"
           size="small"
         ></el-input-number>
@@ -34,7 +34,7 @@
           <p>{{i.nums}}注</p>
           <p>{{i.num}}倍</p>
           <p>{{i.price}}元</p>
-          <p>可中金额{{item.odds*i.num}}</p>
+          <p>可中金额{{i.sum}}</p>
           <p @click="ItemDelete(index)" class="delete">删除</p>
         </li>
       </ul>
@@ -77,6 +77,9 @@ export default {
     priceComputed() {
       this.price = this.num * 2 * this.nums;
       return this.num * 2 * this.nums;
+    },
+    odds(){
+      return this.$store.state.odd;
     }
   },
   created() {
@@ -103,7 +106,6 @@ export default {
   },
   methods: {
     buy() {
-      console.log(this.item)
       if (this.timeId) {
         window.clearTimeout(this.timeId)
         this.timeId = null;
@@ -140,9 +142,6 @@ export default {
       this.str = "";
       this.num = 1;
     },
-    handleChange(value) {
-      console.log(value);
-    },
     onSbmit() {
       //提交数据
       if (this.price !== 0) {
@@ -150,7 +149,8 @@ export default {
           str: this.str,
           price: this.price,
           nums: this.nums,
-          num: this.num
+          num: this.num,
+          sum:this.odds *this.num
         });
       } else {
         this.$notify.info({
@@ -164,6 +164,9 @@ export default {
       this.delete(this.childerArr);
     },
     onChange() {
+      if(this.chooseArray.length>=1){
+        return;
+      }
       //每次计算前,先清空数据
       this.newArray = [];
       this.str = "";
@@ -259,6 +262,9 @@ export default {
     },
     ItemDelete(index) {
       this.chooseArray.splice(index, 1);
+    },
+    handleChange(){
+      
     }
   }
 };
