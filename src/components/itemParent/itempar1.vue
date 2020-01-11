@@ -106,7 +106,6 @@ export default {
   },
   methods: {
     buy() {
-      console.log(this.item)
       let obj = {
         multiple: this.num,
         num: this.nums,
@@ -119,15 +118,10 @@ export default {
       };
       this.$store.dispatch("buy", obj).then(res => {
         if (res.data.code === 200) {
-          this.$message({
-            type: "success",
-            message: res.data.message
-          });
+          this.$message({type: "success",message: res.data.message});
+          this.$store.dispatch('getbetLog');
         } else {
-          this.$message({
-            type: "info",
-            message: res.data.message
-          });
+          this.$message({type: "info",message: res.data.message});
         }
       });
       this.chooseArray = [];

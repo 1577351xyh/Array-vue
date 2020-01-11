@@ -16,15 +16,22 @@
 </template>
 <script>
 
-const itemPar1 = ()=> import('../itemParent/itempar1')
-const itemPar2 = ()=> import('../itemParent/itempar2')
-const itemPar3 = ()=> import('../itemParent/itempar3')
-const itemPar4 = ()=> import('../itemParent/itempar4')
-const itemPar5 = ()=> import('../itemParent/itempar5')
-const itemPar6 = ()=> import('../itemParent/itempar6')
-const itemPar7 = ()=> import('../itemParent/itempar7')
-const itemPar8 = ()=> import('../itemParent/itempar8')
-
+// const itemPar1 = ()=> import('')
+// const itemPar2 = ()=> import('../itemParent/itempar2')
+// const itemPar3 = ()=> import('../itemParent/itempar3')
+// const itemPar4 = ()=> import('../itemParent/itempar4')
+// const itemPar5 = ()=> import('../itemParent/itempar5')
+// const itemPar6 = ()=> import('../itemParent/itempar6')
+// const itemPar7 = ()=> import('../itemParent/itempar7')
+// const itemPar8 = ()=> import('../itemParent/itempar8')
+import itemPar1 from '../itemParent/itempar1'
+import itemPar2 from '../itemParent/itempar2'
+import itemPar3 from '../itemParent/itempar2'
+import itemPar4 from '../itemParent/itempar4'
+import itemPar5 from '../itemParent/itempar5'
+import itemPar6 from '../itemParent/itempar6'
+import itemPar7 from '../itemParent/itempar7'
+import itemPar8 from '../itemParent/itempar8'
 
 import http from "../../hppt/api";
 

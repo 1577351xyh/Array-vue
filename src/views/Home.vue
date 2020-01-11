@@ -3,11 +3,12 @@
     <div class="container-top">
       <div class="flex size24">{{ this.activeName }}</div>
       <div class="flex-2">
-        <div class="flex">距{{ nowlssue.issue }}期投注截止还有</div>
+        <div class="flex">距<p style="color:red">{{ nowlssue.issue }}</p>期投注截止还有</div>
         <div class="time">{{ time }}</div>
       </div>
       <div class="flex-2">
-        <div class="flex">第{{ prevSue.issue }}期开奖号码</div>
+        <div class="flex">第<p style="color:red">{{ prevSue.issue }}</p>期开奖号码</div>
+        {{lottery_time}}
         <div class="roundNo">
           <div v-for="o in prevSue.content">{{o}}</div>
         </div>
@@ -51,7 +52,7 @@
             <p>投注内容</p>
             <p>奖金</p>
           </div>
-          <div v-for="(item, index) in betLogArr" class="text item">
+          <div v-for="(item, index) in betLog" class="text item">
             <p>{{ item.issue }}</p>
             <p>{{ item.play_score }}</p>
             <p class="issueContent">{{ item.content }}</p>
@@ -65,7 +66,7 @@
   </div>
 </template>
 <script>
-const tab1 = () => import('../components/tabs/tab1')
+const tab1 = () => import("../components/tabs/tab1");
 import http from "../hppt/api";
 import moment from "moment";
 import "moment/locale/zh-cn";
@@ -91,11 +92,18 @@ export default {
       //投注记录
       betLogArr: [],
       //上一期
-      prevSue:{}
+      prevSue: {},
+      timeIds: null,
+      lottery_time: ""
     };
   },
   components: {
-    tab1,
+    tab1
+  },
+  computed: {
+    betLog() {
+      return this.$store.state.betLog;
+    }
   },
   created() {
     //初始值
@@ -115,7 +123,7 @@ export default {
       //获取上一期
       let e = await this.getPrev(id);
       //投注记录
-      this.getbetLog();
+      this.$store.dispatch("getbetLog");
     },
     handleClick(tab) {
       if (this.timeId) {
@@ -123,15 +131,15 @@ export default {
       }
       this.timeId = null;
       let index = tab.index;
-      if (tab.name == '北京pk') {
+      if (tab.name == "北京pk") {
         let id = this.roomArr[index].room_info[1].id;
-        this.$store.commit("setTab1id", id);
+        this.$store.commit("SET_TABID", id);
         this.getnowIssue(id);
         this.result(id);
         this.getPrev(id);
-      } else if (tab.name == '幸运飞艇') {
+      } else if (tab.name == "幸运飞艇") {
         let ids = this.roomArr[index].room_info[0].id;
-        this.$store.commit("setTab1id", ids);
+        this.$store.commit("SET_TABID", ids);
         this.getnowIssue(ids);
         this.result(ids);
         this.getPrev(ids);
@@ -140,7 +148,6 @@ export default {
     async getPlayList() {
       let res = await http.gameList();
       this.roomArr = res.data;
-      console.log(this.roomArr)
     },
     async result(id) {
       let res = await http.Result(id);
@@ -149,7 +156,7 @@ export default {
     //获取上一期
     async getPrev(id) {
       let res = await http.getPrev(id);
-      res.data.content = res.data.content.split(',')
+      res.data.content = res.data.content.split(",");
       this.prevSue = res.data;
     },
     //获取当前时间
@@ -160,67 +167,89 @@ export default {
     //当前期号
     async getnowIssue(id) {
       let res = await http.nowIssue(id);
+      console.log(res.data);
       this.nowlssue = res.data;
-      //存到vuex
-      this.$store.commit("setissue", res.data.issue);
-      let newtime = moment(this.newtime).format("x");
-      let endTime = moment(res.data.end).format("x");
-      let startTime = moment(res.data.start).format("x");
-      if (newtime > endTime) {
-        this.time = "已结束";
-        return;
-      } else if (newtime < startTime) {
+      //当前期号
+      this.$store.commit("SET_ISSUE", res.data.issue);
+      //time
+      let newtime = Number(moment(this.newtime).format("x"));
+      let endTime = Number(moment(res.data.end).format("x"));
+      let startTime = Number(moment(res.data.start).format("x"));
+      //开奖时间
+      let lottery_time = moment(res.data.lottery_time).format("x");
+
+      if (newtime < startTime) {
+        //未开始
         this.time = "未开始";
         return;
-      } else {
-        this.Countdown(res.data.start,this.newtime)
+      } else if (startTime < newtime && newtime < endTime) {
+        //进行时间
+        this.Countdown(res.data.end, this.newtime, res.data.lottery_time);
+        return;
+      } else if (endTime < newtime && newtime < endTime) {
+        //结束-开奖时间
+        this.lottery_time = "正在开奖";
+        return;
+      } else if (newtime > endTime) {
+        //已结束
+        this.time = "已结束";
       }
     },
     //倒计时
-    Countdown(start,end){
-        //时间戳转化
-        let m1 = moment(start);
-        let m2 = moment(end);
-        var du = moment.duration(m2 - m1, "ms");
-        let hours = du.get("hours");
-        let mins = du.get("minutes");
-        let ss = du.get("seconds");
-        let sumTime = hours * 3600 + mins * 60 + ss;
+    Countdown(end, newtime, lottery_time) {
+      //时间戳转化
+      let ends = moment(end);
+      let news = moment(newtime);
+      let lottery_times = moment(lottery_time);
 
-        if (this.timeId) {
-          clearInterval(this.timeId);
-          this.timeId = null;
+      var du = moment.duration(ends - news, "ms");
+      let hours = du.get("hours");
+      let mins = du.get("minutes");
+      let ss = du.get("seconds");
+      let sumTime = hours * 3600 + mins * 60 + ss;
+
+      if (this.timeId) {
+        clearInterval(this.timeId);
+        this.timeId = null;
+      }
+      this.timeId = setInterval(() => {
+        if (sumTime == 1) {
+          //请求最新的
+          if (this.timeIds) {
+            clearTimeout(this.timeIds);
+            this.timeIds = null;
+          }
+          console.log("我重新请求了");
+          this.getnowIssue(this.$store.state.oddsid);
+          this.lottery_time = "正在开奖";
+          this.timeIds = setTimeout(() => {
+            //抽奖结果
+            this.getPrev(this.$store.state.oddsid);
+            //开奖记录
+            this.result(this.$store.state.oddsid);
+            this.lottery_time = "";
+          }, 13000);
+          return;
         }
-        this.timeId = setInterval(() => {
-          sumTime--;
-          this.time = this.formatSeconds(sumTime);
-        }, 1000);
-    },
-    //投注记录
-    async getbetLog() {
-      let res = await http.betLog(24);
-      this.betLogArr = res.data.data;
+        sumTime--;
+        this.time = this.formatSeconds(sumTime);
+      }, 1000);
     },
     formatSeconds(value) {
-      var theTime = parseInt(value); // 秒
-      var middle = 0; // 分
-      var hour = 0; // 小时
-      if (theTime > 60) {
-        middle = parseInt(theTime / 60);
-        theTime = parseInt(theTime % 60);
-        if (middle > 60) {
-          hour = parseInt(middle / 60);
-          middle = parseInt(middle % 60);
-        }
-      }
-      var result = "" + parseInt(theTime);
-      if (middle > 0) {
-        result = "" + parseInt(middle) + ":" + result;
-      }
-      if (hour > 0) {
-        result = "" + parseInt(hour) + ":" + result;
-      }
-      return result;
+      let result = parseInt(value);
+      var h =
+        Math.floor(result / 3600) < 10
+          ? "0" + Math.floor(result / 3600)
+          : Math.floor(result / 3600);
+      var m =
+        Math.floor((result / 60) % 60) < 10
+          ? "0" + Math.floor((result / 60) % 60)
+          : Math.floor((result / 60) % 60);
+      var s =
+        Math.floor(result % 60) < 10
+          ? "0" + Math.floor(result % 60)
+          : Math.floor(result % 60);
+      return (result = h + ":" + m + ":" + s);
     }
   }
 };
@@ -334,13 +363,7 @@ export default {
     align-items: center;
     text-overflow: ellipsis; /*超出部分文字以...显示*/
   }
-  .issueContent {
-    text-overflow: ellipsis !important;
-    justify-content: flex-start;
-    overflow: hidden;
-    white-space: nowrap;
-    text-overflow: ellipsis !important;
-  }
+  
 }
 .itemp-tips {
   font-size: 14px;
@@ -358,6 +381,17 @@ export default {
   justify-content: space-between;
   p {
     flex: 1;
+  }
+  .issueContent {
+    // text-overflow: ellipsis !important;
+    // justify-content: flex-start;
+    // overflow: hidden;
+    // white-space: nowrap;
+    // text-overflow: ellipsis !important;
+    width: 50px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
   }
 }
 

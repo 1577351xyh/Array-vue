@@ -152,6 +152,7 @@ export default {
       this.$store.dispatch("buy", obj).then(res => {
         if (res.data.code === 200) {
           this.$message({ type: "success", message: res.data.message });
+          this.$store.dispatch('getbetLog');
         } else {
           this.$message({ type: "info", message: res.data.message });
         }
@@ -170,13 +171,6 @@ export default {
     },
     oddsfn(item) {
       this.odds = item.id;
-      // this.ObjArr.forEach(vm => {
-      //   vm.forEach(vms => {
-      //     if (vms.id == id) {
-      //       this.odds = vms.id;
-      //     }
-      //   });
-      // });
     },
     onChange(item) {
       this.str = "";

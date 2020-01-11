@@ -44,7 +44,6 @@ export default {
       ObjArr2: [],
       str: "",
       odds: 0,
-      childerArr: [],
       chooseArray: []
     };
   },
@@ -86,10 +85,8 @@ export default {
       };
       this.$store.dispatch("buy", obj).then(res => {
         if (res.data.code === 200) {
-          this.$message({
-            type: "success",
-            message: res.data.message
-          });
+          this.$message({type: "success",message: res.data.message});
+          this.$store.dispatch('getbetLog');
         } else {
           this.$message({
             type: "info",
@@ -106,25 +103,11 @@ export default {
     },
     oddsfn(item) {
       this.odds = item.id;
-      // let id = item.id;
-      // this.ObjArr1.forEach(vm => {
-      //   if (vm.id == id) {
-      //     this.odds = vm.id;
-      //   }
-      // });
-      // this.ObjArr2.forEach(vm => {
-      //   if (vm.id == id) {
-      //     this.odds = vm.id;
-      //   }
-      // });
     },
     //当前选中的值,当前选中的行
     onChange(item) {
       this.oddsfn(item);
       this.str = "";
-      this.childerArr = this.$children.filter(
-        vm => vm.$options.name === "items"
-      );
       this.forin(item);
       let strs = this.str;
       console.log(`当前选中:${strs}`);
@@ -140,18 +123,14 @@ export default {
     },
     //清空
     delete() {
-      this.childerArr = this.$children.filter(
-        vm => vm.$options.name === "items"
-      );
-      this.childerArr[0].item1.forEach(vm => {
+      this.$children[0].item1.forEach(vm => {
         vm.active = 0;
       });
-      this.childerArr[0].item2.forEach(vm => {
+      this.$children[0].item2.forEach(vm => {
         vm.active = 0;
       });
     },
     forin(item) {
-      console.log(item);
       if (item.desc == "冠亚和") {
         this.str = item.play_name + ",-";
       } else {
@@ -168,13 +147,7 @@ export default {
         return;
       }
       this.chooseArray.splice(index, 1);
-      this.childerArr.forEach(vm => {
-        vm.item.forEach(vms => {
-          if (vms.id === items.id) {
-            vms.active = 0;
-          }
-        });
-      });
+      this.delete();
     }
   }
 };

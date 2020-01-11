@@ -53,6 +53,7 @@ export default {
   },
   methods: {
     onClick1(item) {
+      console.log(item)
       if (item.active == 0 && this.chooseType != 1) {
         item.active = 1;
         this.activeItem.push(item.play_name);
@@ -65,6 +66,7 @@ export default {
       }
     },
     onClick2(item) {
+      console.log(item)
       if (item.active == 0 && this.chooseType != 1) {
         item.active = 1;
         this.activeItem.push(item.play_name);

@@ -45,6 +45,7 @@
 
         methods: {
             onChange(item) {
+                console.log(item)
                 if (item.active == 0 && this.chooseType != 1) {
                     item.active = 1;
                     this.activeItem.push(item.name);

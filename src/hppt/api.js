@@ -5,7 +5,7 @@ import 'element-ui/lib/theme-chalk/index.css';
 const http = axios.create({
     // 基地址
     // host:'http://ssc.lgqgg.cn',
-    // baseURL: 'http://ssc.lgqgg.cn/',
+    baseURL: 'http://ssc.lgqgg.cn/',
     //超时
     // timeout:5000
 });

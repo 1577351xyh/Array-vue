@@ -118,6 +118,7 @@ export default {
             type: "success",
             message: res.data.message
           });
+          this.$store.dispatch('getbetLog');
         } else {
           this.$message({
             type: "info",
