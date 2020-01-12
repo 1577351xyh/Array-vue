@@ -145,6 +145,13 @@ export default {
         window.clearTimeout(this.timeId);
         this.timeId = null;
       }
+      if(this.str==''){
+         this.$message({
+            type: "error",
+            message: '请先选号'
+          });
+        return;
+      }
       //拿到当前选中的元素
       let obj = {
         multiple: 1,
@@ -227,6 +234,8 @@ export default {
       }
     },
     ItemDelete(items, index, item) {
+      this.str='';
+      this.nums = 0;
       if (item) {
         for (let i = 0; i < this.chooseArray.length; i++) {
           if (this.chooseArray[i].id === item.id) {

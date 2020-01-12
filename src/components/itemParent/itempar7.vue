@@ -74,6 +74,13 @@ export default {
     },
 
     buy() {
+      if(this.str==''){
+        this.$message({
+            type: "error",
+            message: '请先选号'
+          });
+        return;
+      }
       if(this.timeId){
         window.clearTimeout(this.timeId);
         this.timeId = null;
@@ -149,6 +156,8 @@ export default {
       }
     },
     ItemDelete(items, index, item) {
+       this.str='';
+      this.nums = 0;
       if (item) {
         for (let i = 0; i < this.chooseArray.length; i++) {
           if (this.chooseArray[i].id === item.id) {
@@ -159,6 +168,7 @@ export default {
       }
       this.chooseArray.splice(index, 1);
       this.delete();
+      
     },
     
   }

@@ -265,6 +265,8 @@ export default {
     },
     ItemDelete(index) {
       this.chooseArray.splice(index, 1);
+       this.str='';
+      this.nums = 0;
     }
   }
 };
